@@ -1,3 +1,10 @@
+# to-do
+[] talos bootstrap process 
+[] base install (cilium,flux-operator,flux)
+[] flux repo sync
+[] keycloak (integration with ldap, 2fa)
+[] okd dahsboard or headlamp or other dashboard
+
 # configure mirror if airgapped for:
 1. ghcr.io
 2. registry.k8s.io
