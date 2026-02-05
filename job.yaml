@@ -158,6 +158,9 @@ spec:
                 TOKEN="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
                 CA="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 
+                CILIUM_REPO="https://helm.cilium.io"
+                FLUX_OPERATOR_REPO="oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator"
+
                 cat > /tmp/kubeconfig <<EOF
                 apiVersion: v1
                 kind: Config
@@ -179,10 +182,21 @@ spec:
                 EOF
 
                 export KUBECONFIG=/tmp/kubeconfig
-                kubectl get nodes
-                echo "==> Installing Cilium"
 
-                helm repo add cilium https://helm.cilium.io
+                echo "==> Waiting for API server"
+                for i in $(seq 1 60); do
+                  if kubectl --request-timeout=5s get nodes >/dev/null 2>&1; then
+                    echo "==> API server is available"
+                    break
+                  fi
+                  echo "==> API server not ready, retry ${i}/60"
+                  sleep 5
+                done
+
+                kubectl get nodes
+                
+                echo "==> Installing Cilium"
+                helm repo add cilium $CILIUM_REPO
                 helm repo update
 
                 helm upgrade --install cilium cilium/cilium \
@@ -194,7 +208,7 @@ spec:
                 kubectl -n core-cilium rollout status ds/cilium --timeout=5m
 
                 echo "==> Installing Fluxcd Operator"
-                helm upgrade --install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
+                helm upgrade --install flux-operator $FLUX_OPERATOR_REPO\
                   --namespace core-flux-system \
                   --values /flux-operator-values/values.yaml \
                   --create-namespace
