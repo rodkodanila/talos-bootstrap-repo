@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-sync
+  namespace: core-flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: cluster-gitops
+  path: ./gitops/clusters/test-cluster
+  prune: false 
+  wait: true
+  timeout: 5m

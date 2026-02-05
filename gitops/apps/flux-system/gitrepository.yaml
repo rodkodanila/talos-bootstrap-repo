@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: cluster-gitops
+  namespace: core-flux-system
+spec:
+  interval: 1m
+  url: https://github.com/rodkodanila/talos-bootstrap-repo.git
+  ref:
+    branch: main
