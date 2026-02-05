@@ -199,7 +199,10 @@ spec:
                   --values /flux-operator-values/values.yaml \
                   --create-namespace
 
-                echo "==> Installing Flux Instance (example)"
+                echo "==> Waiting for Fluxcd Operator"
+                kubectl -n core-flux-system rollout status deploy/flux-operator --timeout=5m
+
+                echo "==> Installing Flux Instance"
                 kubectl apply -f - <<'EOF'
                 apiVersion: fluxcd.controlplane.io/v1
                 kind: FluxInstance
@@ -224,6 +227,11 @@ spec:
                     networkPolicy: true
                     domain: "cluster.local"
                 EOF
+
+                echo "==> Waiting for Flux controllers"
+                for ctrl in source-controller kustomize-controller helm-controller notification-controller image-reflector-controller image-automation-controller; do
+                  kubectl -n core-flux-system rollout status deploy/${ctrl} --timeout=5m
+                done
 
                 echo "==> Installing Flux GitRepository + Kustomization (example)"
                 kubectl apply -f - <<'EOF'
