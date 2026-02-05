@@ -5,6 +5,8 @@
 [] flux repo sync
 [] keycloak (integration with ldap, 2fa)
 [] okd dahsboard or headlamp or other dashboard
+[] storage (1 longhorn)
+[] vault secret operator (if needed)
 ```
 
 # configure mirror if airgapped for:
